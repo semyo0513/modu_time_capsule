@@ -242,13 +242,19 @@ var Auth = {
     var props = PropertiesService.getScriptProperties();
     var adminPassword = props.getProperty('ADMIN_PASSWORD');
 
+    // 스크립트 속성에 비밀번호가 아직 설정되지 않았다면 기본값 'admin1234'로 자동 등록
     if (!adminPassword) {
-      throw new Error('시스템 오류: 관리자 비밀번호가 Script Properties에 설정되지 않았습니다.');
+      adminPassword = 'admin1234';
+      props.setProperty('ADMIN_PASSWORD', adminPassword);
+      Utils.log('INFO', 'admin_default_pw_set', '기본 관리자 비밀번호(admin1234)로 자동 등록되었습니다.');
     }
 
-    if (!password || String(password).trim() !== String(adminPassword).trim()) {
-      Utils.log('WARN', 'admin_login_fail', '비밀번호 불일치');
-      throw new Error('관리자 비밀번호가 일치하지 않습니다.');
+    var inputPw = String(password || '').trim();
+    var targetPw = String(adminPassword).trim();
+
+    if (!inputPw || inputPw !== targetPw) {
+      Utils.log('WARN', 'admin_login_fail', '비밀번호 불일치 (입력: ' + (inputPw ? '***' : '빈값') + ')');
+      throw new Error('관리자 비밀번호가 일치하지 않습니다. (초기 기본값: admin1234 또는 스크립트 속성 확인)');
     }
 
     var token = 'atk_' + Utils.generateUuid().replace(/-/g, '');
@@ -1105,19 +1111,22 @@ function doPost(e) {
     }
 
     var action = payload.action;
-    var token = payload.token;
+    var token = payload.token || (payload.data && payload.data.token);
+    var reqData = (typeof payload.data === 'object' && payload.data !== null) ? payload.data : payload;
 
     switch (action) {
       case 'submitCapsule':
-        var submitRes = Capsules.submit(payload.data);
+        var submitRes = Capsules.submit(reqData);
         return createJsonResponse({ ok: true, data: submitRes });
 
       case 'adminLogin':
-        var loginRes = Auth.login(payload.password);
+        var pwd = payload.password || reqData.password;
+        var loginRes = Auth.login(pwd);
         return createJsonResponse({ ok: true, data: loginRes });
 
       case 'adminChangePassword':
-        var pwRes = Auth.changePassword(token, payload.newPassword);
+        var newPwd = payload.newPassword || reqData.newPassword;
+        var pwRes = Auth.changePassword(token, newPwd);
         return createJsonResponse({ ok: true, data: pwRes });
 
       case 'adminGetAllSessions':
@@ -1125,19 +1134,23 @@ function doPost(e) {
         return createJsonResponse({ ok: true, data: sessionsList });
 
       case 'adminSaveSession':
-        var savedSession = Sessions.saveSession(token, payload.data);
+        var savedSession = Sessions.saveSession(token, reqData);
         return createJsonResponse({ ok: true, data: savedSession });
 
       case 'adminGetDashboard':
-        var dashData = Sessions.getDashboard(token, payload.sessionId);
+        var dashSessId = payload.sessionId || reqData.sessionId;
+        var dashData = Sessions.getDashboard(token, dashSessId);
         return createJsonResponse({ ok: true, data: dashData });
 
       case 'adminSetWallPhase':
-        var phaseRes = Sessions.setWallPhase(token, payload.sessionId, payload.wallPhase);
+        var wpSessId = payload.sessionId || reqData.sessionId;
+        var wpPhase = payload.wallPhase || reqData.wallPhase;
+        var phaseRes = Sessions.setWallPhase(token, wpSessId, wpPhase);
         return createJsonResponse({ ok: true, data: phaseRes });
 
       case 'adminSendTest':
-        var testRes = Mailer.sendTestMail(token, payload.targetEmail);
+        var testEmail = payload.targetEmail || reqData.targetEmail;
+        var testRes = Mailer.sendTestMail(token, testEmail);
         return createJsonResponse({ ok: true, data: testRes });
 
       case 'adminRunNow':
@@ -1157,15 +1170,18 @@ function doPost(e) {
         return createJsonResponse({ ok: true, data: triggerStatus });
 
       case 'adminGetFailed':
-        var failedList = Capsules.getFailed(token, payload.sessionId);
+        var failedSessId = payload.sessionId || reqData.sessionId;
+        var failedList = Capsules.getFailed(token, failedSessId);
         return createJsonResponse({ ok: true, data: failedList });
 
       case 'adminRetry':
-        var retryRes = Capsules.retryCapsule(token, payload.capsuleId);
+        var retryCapId = payload.capsuleId || reqData.capsuleId;
+        var retryRes = Capsules.retryCapsule(token, retryCapId);
         return createJsonResponse({ ok: true, data: retryRes });
 
       case 'adminExportPledges':
-        var csvStr = Capsules.exportPledgesCsv(token, payload.sessionId);
+        var expSessId = payload.sessionId || reqData.sessionId;
+        var csvStr = Capsules.exportPledgesCsv(token, expSessId);
         return createJsonResponse({ ok: true, data: { csv: csvStr } });
 
       default:

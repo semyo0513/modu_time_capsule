@@ -94,6 +94,8 @@
 
       // 월 화면 링크 쿼리 전달
       var wallUrl = 'wall.html?s=' + encodeURIComponent(info.sessionId);
+      var navWall = document.getElementById('nav-wall-link');
+      if (navWall) navWall.href = wallUrl;
       if (dom.linkToWall) dom.linkToWall.href = wallUrl;
       if (dom.linkToWall2) dom.linkToWall2.href = wallUrl;
       if (dom.linkToWallSuccess) dom.linkToWallSuccess.href = wallUrl;

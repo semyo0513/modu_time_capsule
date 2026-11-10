@@ -25,20 +25,25 @@
       <div class="wall-controls">
         <!-- 카운터 배지 -->
         <div class="wall-stats-badge">
-          <span style="font-size: 14px; color: #94a3b8; font-weight: 600;">봉인된 서약</span>
+          <span style="font-size: 14px; color: var(--text-dim); font-weight: 600;">봉인된 서약</span>
           <span class="counter-number" id="pledge-counter">0</span>
-          <span style="font-size: 14px; color: #94a3b8;">개</span>
+          <span style="font-size: 14px; color: var(--text-dim);">개</span>
         </div>
 
         <!-- BGM 토글 버튼 -->
-        <button type="button" id="btn-toggle-bgm" class="btn btn-outline" style="color: #cbd5e1; border-color: rgba(255,255,255,0.2);">
+        <button type="button" id="btn-toggle-bgm" class="btn btn-outline">
           <span id="bgm-icon">🎵</span> <span id="bgm-text">배경음악 시작</span>
         </button>
 
         <!-- 전체화면 토글 버튼 -->
-        <button type="button" id="btn-fullscreen" class="btn btn-outline" style="color: #cbd5e1; border-color: rgba(255,255,255,0.2);">
+        <button type="button" id="btn-fullscreen" class="btn btn-outline">
           ⛶ 전체화면
         </button>
+
+        <!-- 관리자 바로가기 버튼 -->
+        <a href="admin.html" class="nav-pill-btn" style="padding: 10px 18px; font-size: 13px;">
+          ⚙️ 관리자
+        </a>
       </div>
     </header>
 
@@ -49,10 +54,10 @@
       </div>
 
       <!-- 서약문이 아직 없을 때 빈 상태 안내 -->
-      <div id="wall-empty" class="text-center" style="padding: 100px 20px; color: #64748b;">
-        <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.7;">⏳</div>
-        <h3 style="font-size: 20px; color: #cbd5e1; margin-bottom: 8px;">선생님들의 서약을 기다리고 있습니다</h3>
-        <p style="font-size: 14px;">화면 우측 하단의 QR 코드로 접속하여 첫 번째 서약을 봉인해주세요.</p>
+      <div id="wall-empty" class="text-center" style="padding: 120px 20px; color: var(--text-dim);">
+        <div style="font-size: 54px; margin-bottom: 20px; opacity: 0.8;">⏳</div>
+        <h3 style="font-size: 22px; color: var(--text-gold); margin-bottom: 10px; font-weight: 700;">선생님들의 첫 번째 서약을 기다리고 있습니다</h3>
+        <p style="font-size: 15px; color: var(--text-dim);">화면 우측 하단의 QR 코드로 접속하여 첫 번째 실천 서약을 봉인해주세요.</p>
       </div>
     </main>
   </div>
@@ -60,7 +65,7 @@
   <!-- 화면 모서리 참가용 미니 QR 플로팅 패널 -->
   <aside class="wall-qr-floating" id="wall-qr-panel">
     <div id="wall-qrcode"></div>
-    <div class="qr-label">스마트폰으로 스캔하여 참가</div>
+    <div class="qr-label">스마트폰 스캔하여 참가</div>
   </aside>
 
   <!-- 마무리 연출 오버레이 (Closing Phase) -->
@@ -72,8 +77,8 @@
         기술에 주눅 들지 않고 교사의 주권으로 수업을 깎아내는 '진짜 전문가의 시간'이었습니다.
         교실에 돌아가셨을 때, 오늘 여러분이 세운 이 원칙 하나가 학생들의 생각을 깨우는 거대한 물결이 될 것입니다.
       </div>
-      <div style="margin-top: 36px;">
-        <span style="font-size: 14px; color: #94a3b8;">모두의 타임캡슐이 선생님의 실천을 응원합니다.</span>
+      <div style="margin-top: 40px;">
+        <span style="font-size: 15px; color: var(--gold-300); font-weight: 600;">✦ 모두의 타임캡슐이 선생님의 실천을 진심으로 응원합니다. ✦</span>
       </div>
     </div>
   </div>

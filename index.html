@@ -9,10 +9,27 @@
 </head>
 <body class="participant-body">
 
+  <!-- 은하수 별빛 캔버스 -->
+  <canvas id="participant-stars" class="galaxy-canvas"></canvas>
+
+  <!-- 글로벌 네비게이션 (관리자 접속 링크 포함) -->
+  <nav class="global-nav">
+    <a href="index.html" class="nav-brand">
+      <span>⏳</span> 모두의 타임캡슐
+    </a>
+    <div class="nav-links">
+      <a href="wall.html" id="nav-wall-link" class="nav-pill-btn">🌌 서약문 월</a>
+      <a href="admin.html" class="nav-pill-btn">⚙️ 관리자</a>
+    </div>
+  </nav>
+
   <div class="container">
-    <!-- 헤더 브랜드 -->
+    <!-- 헤더 브랜드 & 크로노미터 엠블럼 -->
     <header class="header-brand">
-      <div class="badge" id="session-badge">TIME CAPSULE</div>
+      <div class="emblem-wrap">
+        <span class="emblem-icon">⏳</span>
+      </div>
+      <div class="badge" id="session-badge">THE TIME CAPSULE</div>
       <h1 id="session-title">모두의 타임캡슐</h1>
       <p id="session-subtitle">다음 주 내 교실에서 실천할 단 하나의 Re-design 원칙</p>
     </header>
@@ -41,36 +58,40 @@
       </div>
     </nav>
 
-    <!-- 로딩 스피너 및 에러/안내 영역 -->
-    <div id="state-loading" class="card text-center" style="margin-top: 30px;">
-      <p class="font-bold text-muted">세션 정보를 불러오는 중입니다...</p>
+    <!-- 로딩 스피너 -->
+    <div id="state-loading" class="card text-center" style="margin-top: 20px;">
+      <p class="font-bold text-gold">세션 시공간 좌표를 불러오는 중입니다...</p>
     </div>
 
-    <div id="state-closed" class="card text-center hidden" style="margin-top: 30px;">
-      <div style="font-size: 40px; margin-bottom: 12px;">🔒</div>
-      <h2>타임캡슐이 마감되었습니다</h2>
-      <p class="text-muted" style="margin: 12px 0 20px;">현재 세션은 제출 시간이 종료되었습니다.</p>
-      <a href="wall.html" id="link-to-wall" class="btn btn-outline btn-block">서약문 월(Wall) 구경하러 가기</a>
+    <!-- 마감 상태 -->
+    <div id="state-closed" class="card text-center hidden" style="margin-top: 20px;">
+      <div style="font-size: 44px; margin-bottom: 12px;">🔒</div>
+      <h2 class="text-gold">타임캡슐이 영구 봉인되었습니다</h2>
+      <p class="text-muted" style="margin: 12px 0 24px;">현재 세션은 작성 및 제출 시간이 종료되었습니다.</p>
+      <a href="wall.html" id="link-to-wall" class="btn btn-gold btn-block">🌌 서약문 월(Wall) 감상하기</a>
     </div>
 
-    <div id="state-already-sealed" class="card text-center hidden" style="margin-top: 30px;">
-      <div style="font-size: 40px; margin-bottom: 12px;">✨</div>
-      <h2>이미 타임캡슐을 봉인하셨습니다</h2>
-      <p class="text-muted" style="margin: 12px 0 20px;">선생님의 다짐과 편지가 안전하게 보관 중입니다.</p>
-      <div style="display: flex; gap: 10px;">
+    <!-- 이미 봉인한 기기 안내 -->
+    <div id="state-already-sealed" class="card text-center hidden" style="margin-top: 20px;">
+      <div style="font-size: 44px; margin-bottom: 12px;">✨</div>
+      <h2 class="text-gold">이미 타임캡슐을 봉인하셨습니다</h2>
+      <p class="text-muted" style="margin: 12px 0 24px;">선생님의 소중한 다짐과 편지가 안전하게 보관 중입니다.</p>
+      <div style="display: flex; gap: 12px;">
         <button type="button" id="btn-re-enter" class="btn btn-secondary" style="flex: 1;">새로 작성하기</button>
-        <a href="wall.html" id="link-to-wall-2" class="btn btn-primary" style="flex: 1;">서약문 월 보기</a>
+        <a href="wall.html" id="link-to-wall-2" class="btn btn-gold" style="flex: 1;">서약문 월 보기</a>
       </div>
     </div>
 
-    <!-- 세션 코드 수동 입력창 (쿼리 파라미터 없을 때) -->
-    <div id="state-enter-code" class="card hidden" style="margin-top: 30px;">
-      <h2>세션 코드 입력</h2>
-      <p class="text-muted" style="margin-bottom: 16px;">강사님이 안내해주신 6자리 세션 코드를 입력해주세요.</p>
+    <!-- 세션 코드 수동 입력창 -->
+    <div id="state-enter-code" class="card hidden" style="margin-top: 20px;">
+      <h2 class="text-gold" style="margin-bottom: 8px;">세션 코드 입력</h2>
+      <p class="text-muted" style="font-size: 14px; margin-bottom: 18px;">
+        강사님이 안내해주신 6자리 세션 코드를 입력하거나, 우측 상단의 <strong>⚙️ 관리자</strong> 버튼을 눌러 세션을 개설하세요.
+      </p>
       <div class="form-group">
-        <input type="text" id="input-session-code" class="form-input" placeholder="예: K7M2QX" maxlength="8" style="text-transform: uppercase; font-size: 18px; letter-spacing: 2px; text-align: center;">
+        <input type="text" id="input-session-code" class="form-input" placeholder="예: K7M2QX" maxlength="8" style="text-transform: uppercase; font-size: 20px; letter-spacing: 3px; text-align: center; font-weight: 800; color: var(--gold-300);">
       </div>
-      <button type="button" id="btn-submit-code" class="btn btn-primary btn-block">입장하기</button>
+      <button type="button" id="btn-submit-code" class="btn btn-gold btn-block">캡슐 창고 입장하기</button>
     </div>
 
     <!-- 마법사 폼 본체 -->
@@ -78,35 +99,35 @@
 
       <!-- 1단계: 동의 -->
       <section class="step-pane active card" data-step="1">
-        <h2>타임캡슐 봉인 안내</h2>
-        <p class="text-muted" style="font-size: 14px; margin: 8px 0 16px;">
-          오늘 연수에서 얻은 소중한 배움을 교실에 연결하기 위한 <strong>나만의 실천 서약</strong>과 <strong>미래의 나에게 보내는 편지</strong>를 작성합니다.
+        <h2 class="text-gold" style="font-size: 20px;">타임캡슐 봉인 서약</h2>
+        <p class="text-muted" style="font-size: 14px; margin: 10px 0 18px;">
+          오늘 연수에서 얻은 깊은 영감을 교실로 이어가기 위해, <strong>나만의 실천 서약</strong>과 <strong>미래의 나에게 보내는 편지</strong>를 타임캡슐에 담습니다.
         </p>
 
         <div class="consent-box">
-          <strong>개인정보 수집 및 이용 안내</strong><br>
+          <strong style="color: var(--text-gold);">개인정보 수집 및 이용 안내</strong><br>
           1. 수집 항목: 이메일 주소, 별명<br>
           2. 수집 목적: 예약일에 지정한 이메일로 타임캡슐 편지 자동 발송<br>
           3. 보유 기간: 메일 발송 완료 직후 개인정보(이메일, 본문) 영구 파기 (관리자 설정 기준)<br>
-          * 작성하신 <strong>서약문과 별명</strong>은 강의장 대형 화면(서약문 월)에 공개 공유되며, <strong>이메일과 편지 본문은 비공개</strong>로 본인에게만 안전하게 발송됩니다.
+          * 작성하신 <strong>서약문과 별명</strong>은 강의장 대형 화면(서약문 월)에 공개 공유되며, <strong>이메일과 편지 본문은 비공개</strong>로 본인에게만 안전하게 전달됩니다.
         </div>
 
         <label class="checkbox-label">
           <input type="checkbox" id="agree-check">
-          <span>위 개인정보 수집 및 이용에 동의합니다. <span class="text-danger">*</span></span>
+          <span>위 개인정보 수집 및 이용에 동의합니다. <span class="text-gold">*</span></span>
         </label>
 
-        <div style="margin-top: 24px;">
-          <button type="button" class="btn btn-primary btn-block btn-next" data-next="2">다음 단계로 (서약문 작성)</button>
+        <div style="margin-top: 28px;">
+          <button type="button" class="btn btn-gold btn-block btn-next" data-next="2">타임캡슐 열기 (다음 단계) →</button>
         </div>
       </section>
 
       <!-- 2단계: 서약문 -->
       <section class="step-pane card" data-step="2">
-        <h2>단 하나의 실천 서약문</h2>
-        <p class="text-muted" style="font-size: 14px; margin: 8px 0 16px;">
+        <h2 class="text-gold" style="font-size: 20px;">단 하나의 실천 서약문</h2>
+        <p class="text-muted" style="font-size: 14px; margin: 10px 0 18px;">
           기존에 해오던 방식을 무엇으로 Re-design하시겠습니까?<br>
-          <span style="color: var(--primary); font-weight: 600;">* 서약문은 강의실 대형 화면에 실시간으로 공유됩니다.</span>
+          <span style="color: var(--gold-400); font-weight: 600;">✦ 서약문은 강의실 대형 화면에 실시간으로 빛나며 공유됩니다.</span>
         </p>
 
         <div class="form-group">
@@ -128,25 +149,25 @@
 
         <!-- 실시간 미리보기 문장 -->
         <div class="pledge-preview-box">
-          <div class="tag">실시간 서약문 미리보기</div>
+          <div class="tag"><span>✨</span> 황금 서약문 미리보기</div>
           <div class="sentence">
             "나는 다음 주 수업에서 <span class="pledge-highlight-a" id="preview-a">AI 결과물</span> 대신,<br>
             <span class="pledge-highlight-b" id="preview-b">학생의 반론 질문</span>을(를) 평가/실천하겠다."
           </div>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="button" class="btn btn-secondary btn-prev" data-prev="1" style="flex: 1;">이전</button>
-          <button type="button" class="btn btn-primary btn-next" data-next="3" style="flex: 2;">다음 (편지 작성)</button>
+        <div style="display: flex; gap: 12px; margin-top: 28px;">
+          <button type="button" class="btn btn-secondary btn-prev" data-prev="1" style="flex: 1;">← 이전</button>
+          <button type="button" class="btn btn-gold btn-next" data-next="3" style="flex: 2;">다음 (편지 쓰기) →</button>
         </div>
       </section>
 
       <!-- 3단계: 편지 -->
       <section class="step-pane card" data-step="3">
-        <h2>미래의 나에게 쓰는 편지</h2>
-        <p class="text-muted" style="font-size: 14px; margin: 8px 0 16px;">
+        <h2 class="text-gold" style="font-size: 20px;">미래의 나에게 쓰는 편지</h2>
+        <p class="text-muted" style="font-size: 14px; margin: 10px 0 18px;">
           오늘의 다짐과 초심을 미래의 나에게 솔직하게 털어놓아 보세요.<br>
-          <span style="color: var(--secondary); font-weight: 600;">* 편지와 이메일 주소는 절대 공개되지 않으며 본인에게만 발송됩니다.</span>
+          <span style="color: var(--primary); font-weight: 600;">🔒 편지와 이메일 주소는 절대 공개되지 않으며 오직 본인에게만 발송됩니다.</span>
         </p>
 
         <div class="form-group">
@@ -166,40 +187,40 @@
           <div class="form-hint">오탈자가 없도록 정확히 입력해주세요.</div>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="button" class="btn btn-secondary btn-prev" data-prev="2" style="flex: 1;">이전</button>
-          <button type="button" class="btn btn-primary btn-next" data-next="4" style="flex: 2;">다음 (발송일 선택)</button>
+        <div style="display: flex; gap: 12px; margin-top: 28px;">
+          <button type="button" class="btn btn-secondary btn-prev" data-prev="2" style="flex: 1;">← 이전</button>
+          <button type="button" class="btn btn-gold btn-next" data-next="4" style="flex: 2;">다음 (발송일 선택) →</button>
         </div>
       </section>
 
       <!-- 4단계: 발송일 선택 -->
       <section class="step-pane card" data-step="4">
-        <h2>편지를 언제 받아볼까요?</h2>
-        <p class="text-muted" style="font-size: 14px; margin: 8px 0 16px;">
+        <h2 class="text-gold" style="font-size: 20px;">캡슐이 도착할 시간</h2>
+        <p class="text-muted" style="font-size: 14px; margin: 10px 0 18px;">
           실천 원칙을 점검하기에 가장 좋은 시점을 선택해주세요.
         </p>
 
-        <!-- 모드 1: 관리자 지정일 (기본 권장) -->
+        <!-- 모드 1: 관리자 지정일 -->
         <label class="date-mode-card selected" id="card-mode-admin">
-          <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <div style="display: flex; align-items: flex-start; gap: 14px;">
             <input type="radio" name="send-mode" id="mode-admin" value="ADMIN" checked style="margin-top: 4px;">
             <div>
-              <div class="font-bold" style="font-size: 16px; color: var(--gray-900);">추천 실천일 (권장)</div>
-              <p class="text-muted" style="font-size: 13px; margin: 4px 0;" id="label-default-date">2026-11-17 (다음 주 화요일)</p>
-              <div style="font-size: 12px; color: var(--primary);">연수 설계자가 권장하는 최적의 점검 시점입니다.</div>
+              <div class="font-bold text-gold" style="font-size: 16px;">추천 실천일 (권장)</div>
+              <p style="font-size: 14px; margin: 4px 0; color: #fff;" id="label-default-date">2026-11-17 (다음 주 화요일)</p>
+              <div style="font-size: 12px; color: var(--text-dim);">연수 설계자가 권장하는 최적의 점검 시점입니다.</div>
             </div>
           </div>
         </label>
 
-        <!-- 모드 2: 직접 선택 (허용된 경우만 표시) -->
+        <!-- 모드 2: 직접 선택 -->
         <div id="custom-date-container" class="hidden">
           <label class="date-mode-card" id="card-mode-custom">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="display: flex; align-items: flex-start; gap: 14px;">
               <input type="radio" name="send-mode" id="mode-custom" value="CUSTOM" style="margin-top: 4px;">
               <div style="width: 100%;">
-                <div class="font-bold" style="font-size: 16px; color: var(--gray-900);">직접 날짜 선택</div>
+                <div class="font-bold text-gold" style="font-size: 16px;">직접 날짜 선택</div>
                 <p class="text-muted" style="font-size: 13px; margin: 4px 0;">내가 원하는 특별한 날에 편지를 받습니다.</p>
-                <div id="custom-date-picker-wrap" style="margin-top: 10px; display: none;">
+                <div id="custom-date-picker-wrap" style="margin-top: 12px; display: none;">
                   <input type="date" id="custom-send-date" class="form-input">
                   <div class="form-hint" id="custom-date-hint">내일 이후 날짜를 선택해주세요.</div>
                 </div>
@@ -208,17 +229,17 @@
           </label>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="button" class="btn btn-secondary btn-prev" data-prev="3" style="flex: 1;">이전</button>
-          <button type="button" class="btn btn-primary btn-next" data-next="5" style="flex: 2;">다음 (요약 확인)</button>
+        <div style="display: flex; gap: 12px; margin-top: 28px;">
+          <button type="button" class="btn btn-secondary btn-prev" data-prev="3" style="flex: 1;">← 이전</button>
+          <button type="button" class="btn btn-gold btn-next" data-next="5" style="flex: 2;">다음 (요약 확인) →</button>
         </div>
       </section>
 
       <!-- 5단계: 확인 및 제출 (봉인) -->
       <section class="step-pane card" data-step="5">
-        <h2>타임캡슐 최종 확인</h2>
-        <p class="text-muted" style="font-size: 14px; margin: 8px 0 16px;">
-          봉인 버튼을 누르면 미래의 나에게 보내는 타임캡슐이 완성됩니다.
+        <h2 class="text-gold" style="font-size: 20px;">타임캡슐 봉인 확인</h2>
+        <p class="text-muted" style="font-size: 14px; margin: 10px 0 18px;">
+          아래 내용을 최종 확인한 뒤 황금 봉인 버튼을 눌러주세요.
         </p>
 
         <ul class="summary-list">
@@ -244,28 +265,26 @@
           </li>
         </ul>
 
-        <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="button" class="btn btn-secondary btn-prev" data-prev="4" style="flex: 1;">수정하기</button>
-          <button type="submit" id="btn-submit" class="btn btn-primary" style="flex: 2; font-size: 16px;">
+        <div style="display: flex; gap: 12px; margin-top: 28px;">
+          <button type="button" class="btn btn-secondary btn-prev" data-prev="4" style="flex: 1;">← 수정</button>
+          <button type="submit" id="btn-submit" class="btn btn-gold" style="flex: 2; font-size: 16px;">
             ⏳ 타임캡슐 봉인하기
           </button>
         </div>
       </section>
 
-      <!-- 완료 화면 (제출 성공) -->
+      <!-- 완료 화면 (황금 왁스 씰 애니메이션) -->
       <section class="step-pane card seal-success-card" data-step="success">
         <div class="capsule-icon-wrap">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14h2v2h-2v-2zm0-10h2v8h-2V6z"/>
-          </svg>
+          <span>✉️</span>
         </div>
-        <h2 style="font-size: 24px; color: var(--gray-900);">타임캡슐이 안전하게 봉인되었습니다!</h2>
-        <p class="text-muted" style="margin: 12px 0 24px; line-height: 1.6;">
-          선생님의 실천 서약은 대형 화면(서약문 월)에 등록되었으며,<br>
-          작성하신 편지는 예약된 날짜에 선생님의 메일함으로 배달됩니다.
+        <h2 class="text-gold" style="font-size: 24px; margin-bottom: 12px;">타임캡슐이 봉인되었습니다!</h2>
+        <p class="text-muted" style="margin: 0 0 28px; line-height: 1.7;">
+          선생님의 실천 서약은 대형 화면(서약문 월)에 별로 떠올랐으며,<br>
+          작성하신 편지는 예약된 날짜에 메일함으로 안전하게 배달됩니다.
         </p>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <a href="wall.html" id="link-to-wall-success" class="btn btn-primary btn-block">서약문 월(Wall)에서 확인하기</a>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <a href="wall.html" id="link-to-wall-success" class="btn btn-gold btn-block">🌌 서약문 월(Wall)에서 확인하기</a>
           <button type="button" id="btn-re-seal" class="btn btn-outline btn-block">다른 다짐 추가로 작성하기</button>
         </div>
       </section>
@@ -273,9 +292,36 @@
     </form>
   </div>
 
-  <!-- 공통 스크립트 로드 -->
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/participant.js"></script>
+  <script>
+    // 참가자 화면 배경 별빛 파티클 렌더링
+    (function() {
+      var canvas = document.getElementById('participant-stars');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var stars = [];
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      window.addEventListener('resize', resize); resize();
+      for (var i = 0; i < 65; i++) {
+        stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.3 + 0.3, a: Math.random(), s: Math.random() * 0.015 + 0.005 });
+      }
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < stars.length; i++) {
+          var st = stars[i];
+          st.a += st.s;
+          if (st.a > 1 || st.a < 0) st.s = -st.s;
+          ctx.beginPath();
+          ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(252, 224, 173, ' + (Math.abs(st.a) * 0.6) + ')';
+          ctx.fill();
+        }
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+  </script>
 </body>
 </html>

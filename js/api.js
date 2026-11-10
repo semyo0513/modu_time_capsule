@@ -70,8 +70,9 @@ var Api = {
     };
 
     if (payload !== undefined && payload !== null) {
-      // payload 안에 data로 감싸져 있거나 직접 전달된 경우 처리
-      if (typeof payload === 'object' && payload.data !== undefined) {
+      if (typeof payload === 'object') {
+        bodyObj.data = payload;
+        // 루트 프로퍼티로도 복사하여 GAS 수신 측 호환성 100% 확보
         Object.assign(bodyObj, payload);
       } else {
         bodyObj.data = payload;
