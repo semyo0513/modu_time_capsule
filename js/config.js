@@ -4,7 +4,7 @@
  */
 var APP_CONFIG = {
   // 배포된 Google Apps Script 웹앱 URL (새 배포 -> 웹 앱 -> URL)
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbwYyQZ1v6M1_EXAMPLE_CHANGE_ME/exec',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbxlx0Pqie1w8SX6x619sD1yQJvB8xWZRqhgWxGjeRP9br-nU5Z9jFdJc-YcYSGMjRtO/exec',
 
   // 서약문 월(Wall) 화면 폴링 간격 (밀리초, 기본 4초)
   WALL_POLL_INTERVAL_MS: 4000,
