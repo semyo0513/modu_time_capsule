@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모두의 타임캡슐 — 관리자 대시보드</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- QRCode.js 라이브러리 (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%22><text y=%2222%22 font-size=%2220%22>🛠️</text></svg>">
+</head>
+<body style="background-color: var(--gray-100);">
+
+  <!-- 관리자 상단 헤더 -->
+  <header class="admin-header">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 24px;">⏳</span>
+      <div>
+        <h1 style="font-size: 18px; margin: 0;">모두의 타임캡슐 — 관리자 센터</h1>
+        <div style="font-size: 12px; color: var(--gray-500);" id="auth-status-text">로그인 필요</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button type="button" id="btn-logout" class="btn btn-outline hidden" style="padding: 6px 14px; min-height: 36px; font-size: 13px;">
+        로그아웃
+      </button>
+    </div>
+  </header>
+
+  <!-- 로그인 전 모달 -->
+  <div id="login-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <h2 style="font-size: 20px; margin-bottom: 8px;">관리자 로그인</h2>
+      <p class="text-muted" style="font-size: 13px; margin-bottom: 20px;">
+        Apps Script 속성에 등록된 관리자 비밀번호를 입력해주세요.
+      </p>
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="admin-pwd">비밀번호</label>
+          <input type="password" id="admin-pwd" class="form-input" placeholder="비밀번호 입력" required autofocus>
+        </div>
+        <button type="submit" id="btn-do-login" class="btn btn-primary btn-block">로그인</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 관리자 메인 컨테이너 (로그인 후 표시) -->
+  <div class="container container-wide hidden" id="admin-main" style="padding-top: 24px;">
+
+    <!-- 세션 선택 및 생성 바 -->
+    <div class="card" style="margin-bottom: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 280px;">
+        <label for="select-session" class="font-bold" style="white-space: nowrap; font-size: 15px;">활성 세션:</label>
+        <select id="select-session" class="form-select" style="max-width: 360px;">
+          <option value="">세션을 선택하세요...</option>
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" id="btn-open-create-modal" class="btn btn-primary" style="padding: 8px 16px; min-height: 40px; font-size: 14px;">
+          + 새 세션 생성
+        </button>
+        <button type="button" id="btn-edit-current-session" class="btn btn-secondary" style="padding: 8px 16px; min-height: 40px; font-size: 14px;">
+          세션 설정 수정
+        </button>
+        <a id="btn-view-wall" href="#" target="_blank" class="btn btn-outline" style="padding: 8px 16px; min-height: 40px; font-size: 14px;">
+          🌌 서약문 월 열기
+        </a>
+      </div>
+    </div>
+
+    <!-- 대시보드 통계 카드 그리드 -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-label">총 봉인 캡슐</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">발송 대기 (PENDING)</div>
+        <div class="stat-value" id="stat-pending">0</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">발송 완료 (SENT)</div>
+        <div class="stat-value" id="stat-sent">0</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-label">발송 실패 (FAILED)</div>
+        <div class="stat-value" id="stat-failed">0</div>
+      </div>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <nav class="admin-tabs">
+      <button type="button" class="tab-btn active" data-tab="tab-quick">빠른 작업 & QR</button>
+      <button type="button" class="tab-btn" data-tab="tab-dispatch">발송 및 스케줄러</button>
+      <button type="button" class="tab-btn" data-tab="tab-failed">실패 목록 & 복구</button>
+    </nav>
+
+    <!-- 탭 1: 빠른 작업 & QR -->
+    <section id="tab-quick" class="tab-content">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+
+        <!-- QR 카드 -->
+        <div class="card text-center">
+          <h3 style="font-size: 17px; margin-bottom: 8px;">참가자 접속용 QR 코드</h3>
+          <p class="text-muted" style="font-size: 13px; margin-bottom: 16px;">
+            스마트폰 카메라로 스캔하면 바로 작성 화면으로 이동합니다.
+          </p>
+          <div id="admin-qr-box" style="display: inline-block; padding: 12px; background: #fff; border-radius: 8px; border: 1px solid var(--gray-200); margin-bottom: 16px;"></div>
+          <div style="margin-bottom: 16px;">
+            <input type="text" id="admin-qr-url" class="form-input text-center" readonly style="font-size: 13px;">
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            <button type="button" id="btn-copy-url" class="btn btn-secondary" style="font-size: 13px;">URL 복사</button>
+            <button type="button" id="btn-download-qr" class="btn btn-outline" style="font-size: 13px;">QR 이미지 저장</button>
+          </div>
+        </div>
+
+        <!-- 월 화면 연출 & 서약문 내보내기 -->
+        <div class="card">
+          <h3 style="font-size: 17px; margin-bottom: 12px;">현장 제어 및 데이터</h3>
+
+          <div style="padding: 16px; background: var(--gray-50); border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--gray-200);">
+            <div class="font-bold" style="font-size: 14px; margin-bottom: 4px;">월(Wall) 마무리 연출 제어</div>
+            <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
+              강의 종료 시 주강사의 마무리 멘트를 대형 화면에 전체 오버레이로 띄웁니다.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="btn-phase-closing" class="btn btn-primary" style="font-size: 13px; flex: 1;">
+                🎬 마무리 연출 켜기
+              </button>
+              <button type="button" id="btn-phase-live" class="btn btn-secondary" style="font-size: 13px; flex: 1;">
+                라이브 월로 복귀
+              </button>
+            </div>
+            <div style="font-size: 12px; color: var(--primary); margin-top: 8px;" id="current-phase-status">현재 상태: LIVE</div>
+          </div>
+
+          <div style="padding: 16px; background: var(--gray-50); border-radius: 8px; border: 1px solid var(--gray-200);">
+            <div class="font-bold" style="font-size: 14px; margin-bottom: 4px;">서약문 목록 CSV 다운로드</div>
+            <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
+              참가자들의 실천 서약문 목록을 CSV 파일로 다운로드합니다. (이메일 및 편지 본문은 개인정보 보호를 위해 제외됩니다.)
+            </p>
+            <button type="button" id="btn-export-csv" class="btn btn-outline btn-block" style="font-size: 13px;">
+              📥 서약문 CSV 내보내기
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 탭 2: 발송 및 스케줄러 -->
+    <section id="tab-dispatch" class="tab-content hidden">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+
+        <!-- 자동 발송 트리거 관리 -->
+        <div class="card">
+          <h3 style="font-size: 17px; margin-bottom: 12px;">자동 발송 시간 트리거</h3>
+          <p class="text-muted" style="font-size: 13px; margin-bottom: 16px;">
+            Google Apps Script의 10분 주기 시간 기반 트리거를 설치하여 예약일이 된 캡슐을 자동으로 발송합니다.
+          </p>
+          <div style="padding: 14px; background: var(--gray-50); border-radius: 8px; margin-bottom: 16px;">
+            <div style="font-size: 13px; margin-bottom: 6px;">
+              트리거 상태: <strong id="trigger-status-badge" style="color: var(--danger);">확인 중...</strong>
+            </div>
+            <div style="font-size: 13px;">
+              Gmail 오늘 잔여 발송량: <strong id="remaining-quota-badge">-</strong> 통
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="btn-install-trigger" class="btn btn-primary" style="font-size: 13px; flex: 1;">
+              ⚡ 10분 주기 트리거 설치
+            </button>
+            <button type="button" id="btn-remove-trigger" class="btn btn-danger" style="font-size: 13px; flex: 1;">
+              트리거 삭제
+            </button>
+          </div>
+        </div>
+
+        <!-- 수동 발송 및 테스트 발송 -->
+        <div class="card">
+          <h3 style="font-size: 17px; margin-bottom: 12px;">수동 즉시 발송 & 테스트</h3>
+
+          <!-- 수동 실행 -->
+          <div style="margin-bottom: 20px;">
+            <div class="font-bold" style="font-size: 14px; margin-bottom: 4px;">지금 발송 대상 즉시 처리</div>
+            <p class="text-muted" style="font-size: 12px; margin-bottom: 8px;">
+              10분 트리거를 기다리지 않고 현재 시각 기준 도래한 캡슐을 지금 즉시 발송합니다.
+            </p>
+            <button type="button" id="btn-run-now" class="btn btn-secondary btn-block" style="font-size: 13px;">
+              🚀 지금 즉시 발송 실행
+            </button>
+          </div>
+
+          <!-- 서식 확인용 테스트 메일 -->
+          <div style="border-top: 1px dashed var(--gray-200); padding-top: 16px;">
+            <div class="font-bold" style="font-size: 14px; margin-bottom: 4px;">서식 확인용 테스트 메일 발송</div>
+            <p class="text-muted" style="font-size: 12px; margin-bottom: 8px;">
+              실제 참가자에게 도착하는 메일의 디자인과 서식을 관리자 본인의 주소로 미리 발송해 확인합니다.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <input type="email" id="input-test-email" class="form-input" placeholder="받아볼 이메일 주소" style="font-size: 13px;">
+              <button type="button" id="btn-send-test" class="btn btn-outline" style="white-space: nowrap; font-size: 13px;">
+                발송
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 탭 3: 실패 목록 & 복구 -->
+    <section id="tab-failed" class="tab-content hidden">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="font-size: 17px; margin: 0;">발송 실패(FAILED) 목록</h3>
+          <button type="button" id="btn-refresh-failed" class="btn btn-secondary" style="font-size: 13px; padding: 6px 12px; min-height: 36px;">
+            새로고침
+          </button>
+        </div>
+        <p class="text-muted" style="font-size: 13px; margin-bottom: 16px;">
+          잘못된 이메일 주소나 일시적인 오류로 3회 이상 실패한 목록입니다. 원인 확인 후 재시도할 수 있습니다.
+        </p>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>수신자 (별명)</th>
+                <th>이메일 주소</th>
+                <th>메일 제목</th>
+                <th>실패 사유</th>
+                <th>재시도</th>
+              </tr>
+            </thead>
+            <tbody id="failed-table-body">
+              <tr>
+                <td colspan="5" class="text-center text-muted" style="padding: 30px;">
+                  실패한 캡슐이 없습니다. (모두 정상 발송 또는 대기 중)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 세션 생성 및 수정 모달 -->
+  <div id="session-modal" class="modal-backdrop hidden">
+    <div class="modal-content" style="max-width: 580px;">
+      <h2 style="font-size: 20px; margin-bottom: 8px;" id="modal-session-title">세션 생성</h2>
+      <form id="session-form">
+        <input type="hidden" id="modal-session-id">
+
+        <div class="form-group">
+          <label class="form-label" for="sess-name">세션명 <span class="req">*</span></label>
+          <input type="text" id="sess-name" class="form-input" placeholder="예: AIEDAP 모듈4 마무리" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sess-default-send">기본 발송일시 (추천 실천일) <span class="req">*</span></label>
+          <input type="datetime-local" id="sess-default-send" class="form-input" required>
+          <div class="form-hint">'추천 실천일'을 선택한 모든 참가자에게 적용됩니다.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="sess-allow-custom">
+            <span>참가자가 직접 날짜를 선택할 수 있도록 허용</span>
+          </label>
+        </div>
+
+        <div class="form-group" id="wrap-max-send" style="display: none;">
+          <label class="form-label" for="sess-max-send">직접 선택 최대 허용일</label>
+          <input type="datetime-local" id="sess-max-send" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="sess-is-open" checked>
+            <span>참가자 작성 및 제출 열림 (체크 해제 시 마감)</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="sess-purge" checked>
+            <span>발송 완료 즉시 이메일 주소·편지 본문 영구 파기 (개인정보 보호 권장)</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sess-closing-msg">월 화면 마무리 멘트</label>
+          <textarea id="sess-closing-msg" class="form-textarea" style="min-height: 90px;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 24px;">
+          <button type="button" id="btn-close-session-modal" class="btn btn-secondary" style="flex: 1;">취소</button>
+          <button type="submit" id="btn-save-session" class="btn btn-primary" style="flex: 2;">저장하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 토스트 컨테이너 -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- 스크립트 로드 -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
