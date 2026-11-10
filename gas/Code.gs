@@ -213,6 +213,12 @@ var Utils = {
     if (!dateStr) return null;
     if (dateStr instanceof Date) return dateStr;
     var s = String(dateStr).trim();
+    // "2026. 11. 10" 형태를 "2026-11-10"으로 정규화
+    if (/^\d{4}\.\s*\d{1,2}\.\s*\d{1,2}/.test(s)) {
+      s = s.replace(/^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?/, function(_, y, m, d) {
+        return y + '-' + ('0' + m).slice(-2) + '-' + ('0' + d).slice(-2);
+      });
+    }
     // YYYY-MM-DD 형태만 있으면 T00:00:00+09:00 부여
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
       s += 'T00:00:00+09:00';
@@ -443,9 +449,9 @@ var Sessions = {
 
       var dateKey = '미정';
       if (c.sendMode === 'CUSTOM' && c.customSendAt) {
-        dateKey = String(c.customSendAt).substring(0, 10);
+        dateKey = Utils.formatKST(c.customSendAt).substring(0, 10) || '미정';
       } else if (session.defaultSendAt) {
-        dateKey = String(session.defaultSendAt).substring(0, 10);
+        dateKey = Utils.formatKST(session.defaultSendAt).substring(0, 10) || '미정';
       }
       dateDistribution[dateKey] = (dateDistribution[dateKey] || 0) + 1;
     });
@@ -736,8 +742,10 @@ var Mailer = {
     var safePledgeA = Utils.escapeHtml(pledgeA || '');
     var safePledgeB = Utils.escapeHtml(pledgeB || '');
     var safeBody = Utils.escapeHtml(bodyText || '').replace(/\r?\n/g, '<br>');
-    var safeSealed = Utils.escapeHtml(sealedDate ? sealedDate.substring(0, 10) : '');
-    var safeArrival = Utils.escapeHtml(arrivalDate ? arrivalDate.substring(0, 10) : '');
+    var sealedStr = Utils.formatKST(sealedDate);
+    var arrivalStr = Utils.formatKST(arrivalDate);
+    var safeSealed = Utils.escapeHtml(sealedStr ? sealedStr.substring(0, 10) : '');
+    var safeArrival = Utils.escapeHtml(arrivalStr ? arrivalStr.substring(0, 10) : '');
 
     return '' +
       '<!DOCTYPE html>' +
@@ -814,9 +822,14 @@ var Mailer = {
   },
 
   buildPlainTextBody: function(sessionName, nickname, pledgeA, pledgeB, bodyText, sealedDate, arrivalDate) {
+    var sealedStr = Utils.formatKST(sealedDate);
+    var arrivalStr = Utils.formatKST(arrivalDate);
+    var sealedShort = sealedStr ? sealedStr.substring(0, 10) : '';
+    var arrivalShort = arrivalStr ? arrivalStr.substring(0, 10) : '';
+
     return '[' + sessionName + ' - 모두의 타임캡슐]\n\n' +
       '안녕하세요, ' + (nickname || '선생님') + '님.\n\n' +
-      '지난 ' + (sealedDate ? sealedDate.substring(0, 10) : '') + ' 연수를 마무리하며 봉인했던 타임캡슐이 도착했습니다.\n\n' +
+      '지난 ' + sealedShort + ' 연수를 마무리하며 봉인했던 타임캡슐이 도착했습니다.\n\n' +
       '--------------------------------------------------\n' +
       '■ 나의 실천 서약문\n' +
       '"나는 다음 수업에서 [' + pledgeA + '] 대신, [' + pledgeB + ']을(를) 평가/실천하겠다."\n' +
@@ -824,7 +837,7 @@ var Mailer = {
       '■ 미래의 나에게 쓴 편지\n' +
       bodyText + '\n\n' +
       '--------------------------------------------------\n' +
-      '봉인일: ' + (sealedDate ? sealedDate.substring(0, 10) : '') + ' / 도착일: ' + (arrivalDate ? arrivalDate.substring(0, 10) : '') + '\n' +
+      '봉인일: ' + sealedShort + ' / 도착일: ' + arrivalShort + '\n' +
       '본 메일은 연수 마무리 시 본인이 직접 예약 발송한 메일입니다.';
   },
 
@@ -834,14 +847,17 @@ var Mailer = {
     }
 
     var subject = '[타임캡슐] ' + (capsule.subject || '미래의 나에게서 온 편지');
+    var createdStr = Utils.formatKST(capsule.createdAt);
+    var arrivalStr = Utils.nowKSTString();
+
     var htmlContent = this.buildHtmlBody(
       session ? session.name : '',
       capsule.nickname,
       capsule.pledgeA,
       capsule.pledgeB,
       capsule.body,
-      capsule.createdAt,
-      Utils.nowKSTString()
+      createdStr,
+      arrivalStr
     );
     var plainContent = this.buildPlainTextBody(
       session ? session.name : '',
@@ -849,8 +865,8 @@ var Mailer = {
       capsule.pledgeA,
       capsule.pledgeB,
       capsule.body,
-      capsule.createdAt,
-      Utils.nowKSTString()
+      createdStr,
+      arrivalStr
     );
 
     MailApp.sendEmail({
