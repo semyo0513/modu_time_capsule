@@ -13,7 +13,9 @@
     isPlayingBgm: false,
     synthCtx: null,
     synthGain: null,
-    synthInterval: null
+    synthInterval: null,
+    closingDismissed: false,
+    lastPhase: 'LIVE'
   };
 
   var dom = {
@@ -29,6 +31,8 @@
     audio: document.getElementById('bgm-audio'),
     closingOverlay: document.getElementById('closing-overlay'),
     closingMessage: document.getElementById('closing-message-text'),
+    btnCloseClosing: document.getElementById('btn-close-closing'),
+    wallNavJoin: document.getElementById('wall-nav-join'),
     qrcodeEl: document.getElementById('wall-qrcode')
   };
 
@@ -51,6 +55,10 @@
     }
 
     state.sessionId = s.trim().toUpperCase();
+
+    if (dom.wallNavJoin) {
+      dom.wallNavJoin.href = 'index.html?s=' + encodeURIComponent(state.sessionId);
+    }
 
     // 1. 별빛 배경 시작
     initStarfield();
@@ -79,8 +87,8 @@
         dom.qrcodeEl.innerHTML = '';
         new QRCode(dom.qrcodeEl, {
           text: participantUrl,
-          width: 110,
-          height: 110,
+          width: 96,
+          height: 96,
           colorDark: '#0f172a',
           colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.M
@@ -95,8 +103,8 @@
   }
 
   function fallbackQr(url) {
-    dom.qrcodeEl.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' +
-      encodeURIComponent(url) + '" alt="QR" width="110" height="110">';
+    dom.qrcodeEl.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=96x96&data=' +
+      encodeURIComponent(url) + '" alt="QR" width="96" height="96">';
   }
 
   /**
@@ -119,7 +127,15 @@
       dom.counter.textContent = res.totalCount || 0;
 
       // 마무리 연출 확인
-      if (res.wallPhase === 'CLOSING') {
+      var currentPhase = res.wallPhase || 'LIVE';
+      if (currentPhase !== state.lastPhase) {
+        state.lastPhase = currentPhase;
+        if (currentPhase === 'CLOSING') {
+          state.closingDismissed = false; // 관리자가 새로 켰을 때 다시 보이도록
+        }
+      }
+
+      if (currentPhase === 'CLOSING' && !state.closingDismissed) {
         if (res.closingMessage) {
           dom.closingMessage.textContent = res.closingMessage;
         }
@@ -221,17 +237,27 @@
     });
 
     // 전체화면 토글
-    dom.btnFullscreen.addEventListener('click', function() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(function(e) {
-          console.warn('전체화면 전환 실패:', e);
-        });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
+    if (dom.btnFullscreen) {
+      dom.btnFullscreen.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function(e) {
+            console.warn('전체화면 전환 실패:', e);
+          });
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
         }
-      }
-    });
+      });
+    }
+
+    // 마무리 오버레이 닫기 (개별 화면 보기 전환)
+    if (dom.btnCloseClosing) {
+      dom.btnCloseClosing.addEventListener('click', function() {
+        state.closingDismissed = true;
+        dom.closingOverlay.classList.remove('active');
+      });
+    }
   }
 
   /**
@@ -264,7 +290,7 @@
   function stopBgm() {
     state.isPlayingBgm = false;
     dom.bgmIcon.textContent = '🎵';
-    dom.bgmText.textContent = '배경음악 시작';
+    dom.bgmText.textContent = '음악 켜기';
 
     dom.audio.pause();
     dom.audio.currentTime = 0;

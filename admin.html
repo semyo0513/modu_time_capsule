@@ -56,22 +56,22 @@
   <div class="container container-wide hidden" id="admin-main" style="padding-top: 28px;">
 
     <!-- 세션 선택 및 생성 바 -->
-    <div class="card" style="margin-bottom: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
-      <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 280px;">
-        <label for="select-session" class="font-bold text-gold" style="white-space: nowrap; font-size: 15px;">활성 세션:</label>
-        <select id="select-session" class="form-select" style="max-width: 380px;">
+    <div class="card" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: min(100%, 260px);">
+        <label for="select-session" class="font-bold text-gold" style="white-space: nowrap; font-size: 14px;">활성 세션:</label>
+        <select id="select-session" class="form-select" style="flex: 1;">
           <option value="">세션을 선택하세요...</option>
         </select>
       </div>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button type="button" id="btn-open-create-modal" class="btn btn-gold" style="padding: 10px 18px; min-height: 42px; font-size: 14px;">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%; max-width: max-content;">
+        <button type="button" id="btn-open-create-modal" class="btn btn-gold btn-sm">
           + 새 세션 생성
         </button>
-        <button type="button" id="btn-edit-current-session" class="btn btn-secondary" style="padding: 10px 18px; min-height: 42px; font-size: 14px;">
-          세션 설정 수정
+        <button type="button" id="btn-edit-current-session" class="btn btn-secondary btn-sm">
+          세션 수정
         </button>
-        <a id="btn-view-wall" href="#" target="_blank" class="btn btn-outline" style="padding: 10px 18px; min-height: 42px; font-size: 14px;">
-          🌌 서약문 월(Wall) 열기
+        <a id="btn-view-wall" href="#" target="_blank" class="btn btn-outline btn-sm">
+          🌌 월(Wall) 열기
         </a>
       </div>
     </div>
@@ -105,7 +105,7 @@
 
     <!-- 탭 1: 빠른 작업 & QR -->
     <section id="tab-quick" class="tab-content">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px;">
 
         <!-- QR 카드 -->
         <div class="card text-center">
@@ -159,7 +159,7 @@
 
     <!-- 탭 2: 발송 및 스케줄러 -->
     <section id="tab-dispatch" class="tab-content hidden">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px;">
 
         <!-- 자동 발송 트리거 관리 -->
         <div class="card">
