@@ -204,15 +204,26 @@ var Utils = {
 
   formatKST: function(dateOrStr) {
     if (!dateOrStr) return '';
-    var d = (dateOrStr instanceof Date) ? dateOrStr : new Date(dateOrStr);
-    if (isNaN(d.getTime())) return '';
+    var d = (dateOrStr instanceof Date) ? dateOrStr : this.parseKST(dateOrStr);
+    if (!d || isNaN(d.getTime())) return '';
     return Utilities.formatDate(d, 'Asia/Seoul', "yyyy-MM-dd'T'HH:mm:ss");
   },
 
   parseKST: function(dateStr) {
     if (!dateStr) return null;
     if (dateStr instanceof Date) return dateStr;
-    var d = new Date(dateStr);
+    var s = String(dateStr).trim();
+    // YYYY-MM-DD 형태만 있으면 T00:00:00+09:00 부여
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      s += 'T00:00:00+09:00';
+    } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) {
+      // YYYY-MM-DDTHH:mm 형태 (datetime-local 입력값)
+      s += ':00+09:00';
+    } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)) {
+      // 오프셋 없는 ISO 문자열
+      s += '+09:00';
+    }
+    var d = new Date(s);
     return isNaN(d.getTime()) ? null : d;
   },
 
@@ -1250,5 +1261,33 @@ function setup() {
     } catch (e) {}
   }
 
-  Logger.log('모두의 타임캡슐 초기 셋업이 완료되었습니다!');
+  // 메일 발송 및 트리거 권한을 setup() 1회 실행 시 함께 승인받기 위해 호출
+  var quota = MailApp.getRemainingDailyQuota();
+  var triggers = ScriptApp.getProjectTriggers();
+
+  Logger.log('모두의 타임캡슐 초기 셋업이 완료되었습니다! (오늘 메일 잔여량: ' + quota + '통, 설치된 트리거: ' + triggers.length + '개)');
+}
+
+/**
+ * Apps Script 편집기에서 관리자 본인 이메일로 즉시 발송 테스트해보는 함수
+ * (상단 함수 선택란에서 'testMyEmail' 선택 후 실행 클릭)
+ */
+function testMyEmail() {
+  var myEmail = Session.getActiveUser().getEmail();
+  if (!myEmail) {
+    throw new Error('실행 계정의 이메일 주소를 가져올 수 없습니다. 관리자 웹 화면(admin.html)에서 테스트 메일 발송 기능을 이용해주세요.');
+  }
+
+  var sampleCapsule = {
+    emailTo: myEmail,
+    nickname: '관리자 선생님',
+    pledgeA: '단순 요약 과제',
+    pledgeB: '학생 스스로의 비판적 질문',
+    subject: '테스트 - 타임캡슐 발송 확인',
+    body: '안녕하세요! 이 메일이 정상적으로 도착했다면 Google Apps Script 메일 발송 권한과 서식이 완벽하게 작동하고 있는 것입니다.',
+    createdAt: Utils.nowKSTString()
+  };
+
+  Mailer.send(sampleCapsule, { name: '타임캡슐 발송 테스트' });
+  Logger.log('테스트 메일 발송 성공! 수신자: ' + myEmail + ' / 남은 일일 한도: ' + MailApp.getRemainingDailyQuota());
 }
