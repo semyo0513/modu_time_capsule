@@ -46,14 +46,7 @@
 │  ├─ wall.js            # 월 화면 증분 폴링, 별빛 배경, BGM, 마무리 연출
 │  └─ admin.js           # 세션 관리, QR 생성, 즉시 발송, 트리거 제어
 ├─ gas/                  # Google Apps Script 백엔드 코드
-│  ├─ Code.gs            # doGet/doPost 라우터, 시트 초기화 setup()
-│  ├─ Config.gs          # 시트명, 헤더 매핑, 제약 상수
-│  ├─ Auth.gs            # 관리자 비밀번호 검증 및 세션 토큰 관리
-│  ├─ Sessions.gs        # 세션 CRUD, 대시보드 통계
-│  ├─ Capsules.gs        # 서약문 제출, 서버 검증, 월 화면 조회 (개인정보 제외)
-│  ├─ Mailer.gs          # HTML 편지 템플릿, 이스케이프, 메일 발송
-│  ├─ Scheduler.gs       # 발송 처리 루프, 10분 주기 트리거 설치/삭제
-│  ├─ Utils.gs           # 헤더 기반 시트 제어, KST 날짜, 수식 인젝션 방지
+│  ├─ Code.gs            # 백엔드 전체 통합 단일 스크립트 (원클릭 복사-붙여넣기)
 │  └─ appsscript.json    # 매니페스트 (Asia/Seoul, 권한 스코프)
 └─ README.md
 ```
@@ -67,10 +60,9 @@
 2. 웹 브라우저 주소창에서 스프레드시트 ID를 복사합니다.
    - URL 형태: `https://docs.google.com/spreadsheets/d/`**`[여기가_SHEET_ID]`**`/edit`
 
-### 2단계: Apps Script 프로젝트 생성 및 코드 등록
+### 2단계: Apps Script 프로젝트 생성 및 코드 등록 (단일 파일 복사)
 1. 스프레드시트 메뉴에서 **확장 프로그램** → **Apps Script**를 클릭합니다.
-2. `gas/` 폴더 내의 파일들을 Apps Script 편집기에 각각 생성하여 붙여넣습니다:
-   - `Code.gs`, `Config.gs`, `Utils.gs`, `Auth.gs`, `Sessions.gs`, `Capsules.gs`, `Mailer.gs`, `Scheduler.gs`
+2. 기본으로 열려있는 `Code.gs`의 내용을 모두 지우고, 이 저장소의 **`gas/Code.gs` 전체 내용 하나만 복사하여 붙여넣고 저장(Ctrl+S)**합니다.
 3. 좌측 톱니바퀴 아이콘(**프로젝트 설정**)을 누르고 **'appsscript.json' 매니페스트 파일 표시**를 체크한 뒤, 편집기로 돌아와 `appsscript.json` 내용을 `gas/appsscript.json` 내용으로 덮어씁니다.
 4. **프로젝트 설정** 하단의 **스크립트 속성(Script Properties)**에 다음 2개의 속성을 추가합니다:
    - `SHEET_ID`: 1단계에서 복사한 스프레드시트 ID
